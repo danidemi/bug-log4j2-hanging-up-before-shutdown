@@ -48,7 +48,11 @@ but the shutdown of og4j2 starts __exactly__ one minute after the last log messa
 
     2016-12-22 22:13:36,380 pool-1-thread-1 DEBUG Stopping LoggerContext[name=60199c81, org.apache.logging.log4j.core.LoggerContext@4597ec68]
 
-This difference in time seems more or less independent from the number of messages being logged.
+__This is the problem! The business logic terminates, but log4j2 waits for one minute before stopping!__
+Why that ? I would prefer the application to stop immediately as one would probably expect.
+
+I investigated a little... this 60 sec delay seems more or less independent
+from the number of messages being logged.
 
 However, if you change the `log4j2.xml` incrementing the size from 5Kb...
 
@@ -65,4 +69,9 @@ to 5Mb...
     </Policies>
 
 ... that makes the application to stop immediately right after the last log message.
+5Mb is a limit big enough not to require the rolling to actually take place.
+So I think that is the rolling itself that in some way make this delay to occur.
+I think it's a bug but... what do you think ?
+
+
 
